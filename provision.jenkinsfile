@@ -7,6 +7,7 @@ pipeline {
         AZURE_PASSWORD = credentials('AZURE_PASSWORD')
         AZURE_SUBSCRIPTION = credentials('AZURE_SUBSCRIPTION')
         AZURE_TENANT = credentials('AZURE_TENANT')
+        STORAGE_ACCOUNT_KEY = credentials('STORAGE_ACCOUNT_KEY')
     }
     stages {
         stage('Checkout Code') {
@@ -24,7 +25,7 @@ pipeline {
                     export ARM_CLIENT_SECRET=${AZURE_PASSWORD}
                     export ARM_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION}
                     export ARM_TENANT_ID=${AZURE_TENANT}
-                    terraform init
+                    terraform init -backend-config="access_key=${STORAGE_ACCOUNT_KEY}"
                     """
                 }
             }
@@ -38,7 +39,7 @@ pipeline {
                     export ARM_CLIENT_SECRET=${AZURE_PASSWORD}
                     export ARM_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION}
                     export ARM_TENANT_ID=${AZURE_TENANT}
-                    terraform apply -auto-approve
+                    terraform apply -auto-approve -backend-config="access_key=${STORAGE_ACCOUNT_KEY}"
                     """
                 }
             }
