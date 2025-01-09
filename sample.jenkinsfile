@@ -7,16 +7,6 @@ pipeline {
         TERRAFORM_INSTALL_DIR = "${WORKSPACE}/terraform"
     }
     stages {
-        stage('Install Software') {
-            steps {
-                script {
-                    sh '''
-                    apt-get update
-                    apt-get install -y curl unzip
-                    '''
-                }
-            }
-        }
         stage('Checkout Code') {
             steps {
                 // Checkout repository from GitHub
