@@ -3,6 +3,10 @@ pipeline {
 
     environment {
         VERSION = '0.0.1'
+        AZURE_USER = credentials('AZURE_USER')
+        AZURE_PASSWORD = credentials('AZURE_PASSWORD')
+        AZURE_SUBSCRIPTION = credentials('AZURE_SUBSCRIPTION')
+        AZURE_TENANT = credentials('AZURE_TENANT')
     }
     stages {
         stage('Checkout Code') {
@@ -14,40 +18,28 @@ pipeline {
         stage('Initialize Terraform') {
             steps {
                 script {
-                    withCredentials([
-                        usernamePassword(credentialsId: 'azure-credentials', usernameVariable: 'AZURE_USER', passwordVariable: 'AZURE_PASSWORD'),
-                        string(credentialsId: 'azure-subscription', variable: 'AZURE_SUBSCRIPTION'),
-                        string(credentialsId: 'azure-tenant', variable: 'AZURE_TENANT')
-                    ]) {
-                        // Use the locally installed Terraform binary
-                        sh """
-                        export ARM_CLIENT_ID=${AZURE_USER}
-                        export ARM_CLIENT_SECRET=${AZURE_PASSWORD}
-                        export ARM_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION}
-                        export ARM_TENANT_ID=${AZURE_TENANT}
-                        terraform init
-                        """
-                    }
+                    // Use the locally installed Terraform binary
+                    sh """
+                    export ARM_CLIENT_ID=${AZURE_USER}
+                    export ARM_CLIENT_SECRET=${AZURE_PASSWORD}
+                    export ARM_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION}
+                    export ARM_TENANT_ID=${AZURE_TENANT}
+                    terraform init
+                    """
                 }
             }
         }
         stage('Run Terraform Plan') {
             steps {
                 script {
-                    withCredentials([
-                        usernamePassword(credentialsId: 'azure-credentials', usernameVariable: 'AZURE_USER', passwordVariable: 'AZURE_PASSWORD'),
-                        string(credentialsId: 'azure-subscription', variable: 'AZURE_SUBSCRIPTION'),
-                        string(credentialsId: 'azure-tenant', variable: 'AZURE_TENANT')
-                    ]) {
-                        // Run `terraform plan`
-                        sh """
-                        export ARM_CLIENT_ID=${AZURE_USER}
-                        export ARM_CLIENT_SECRET=${AZURE_PASSWORD}
-                        export ARM_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION}
-                        export ARM_TENANT_ID=${AZURE_TENANT}
-                        terraform plan
-                        """
-                    }
+                    // Run `terraform plan`
+                    sh """
+                    export ARM_CLIENT_ID=${AZURE_USER}
+                    export ARM_CLIENT_SECRET=${AZURE_PASSWORD}
+                    export ARM_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION}
+                    export ARM_TENANT_ID=${AZURE_TENANT}
+                    terraform plan
+                    """
                 }
             }
         }
