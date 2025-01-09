@@ -37,12 +37,12 @@ resource "azurerm_service_plan" "service_plan" {
   sku_name = "F1"
 }
 
-resource "azurerm_linux_app_service" "app_service" {
+resource "azurerm_linux_web_app" "web_app" {
   name = random_string.random.result
   location = azurerm_resource_group.group.location
   resource_group_name = azurerm_resource_group.group.name
-  app_service_plan_id = azurerm_service_plan.service_plan.id
-  app_settings = {
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+  service_plan_id = azurerm_service_plan.service_plan.id
+  site_config {
+    linux_fx_version = "DOCKER|nginx"
   }
 }
