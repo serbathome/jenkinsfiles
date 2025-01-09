@@ -1,0 +1,53 @@
+pipeline {
+    agent {
+        label 'mac-silicon'
+    }
+    environment {
+        TERRAFORM_VERSION = '1.5.6' // Replace with the required Terraform version
+        TERRAFORM_BINARY_URL = "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+        TERRAFORM_INSTALL_DIR = "${WORKSPACE}/terraform"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Checkout repository from GitHub
+                git branch: 'main', url: 'https://github.com/serbathome/jenkinsfiles.git'
+            }
+        }
+        stage('Download and Install Terraform') {
+            steps {
+                script {
+                    // Create the install directory
+                    sh """
+                    mkdir -p ${TERRAFORM_INSTALL_DIR}
+                    curl -o terraform.zip ${TERRAFORM_BINARY_URL}
+                    unzip terraform.zip -d ${TERRAFORM_INSTALL_DIR}
+                    rm terraform.zip
+                    """
+                }
+            }
+        }
+        stage('Initialize Terraform') {
+            steps {
+                script {
+                    // Use the locally installed Terraform binary
+                    sh """
+                    export PATH=${TERRAFORM_INSTALL_DIR}:$PATH
+                    terraform init
+                    """
+                }
+            }
+        }
+        stage('Run Terraform Plan') {
+            steps {
+                script {
+                    // Run `terraform plan`
+                    sh """
+                    export PATH=${TERRAFORM_INSTALL_DIR}:$PATH
+                    terraform plan
+                    """
+                }
+            }
+        }
+    }
+}
