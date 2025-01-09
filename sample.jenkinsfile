@@ -2,11 +2,21 @@ pipeline {
     agent any
 
     environment {
-        TERRAFORM_VERSION = '1.5.6' // Replace with the required Terraform version
-        TERRAFORM_BINARY_URL = "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.tar.gz"
+        TERRAFORM_VERSION = '1.10.4' // Replace with the required Terraform version
+        TERRAFORM_BINARY_URL = "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_arm64.zip"
         TERRAFORM_INSTALL_DIR = "${WORKSPACE}/terraform"
     }
     stages {
+        stage('Install Software') {
+            steps {
+                script {
+                    sh '''
+                    apt-get update
+                    apt-get install -y curl unzip
+                    '''
+                }
+            }
+        }
         stage('Checkout Code') {
             steps {
                 // Checkout repository from GitHub
@@ -19,9 +29,9 @@ pipeline {
                     // Create the install directory
                     sh """
                     mkdir -p ${TERRAFORM_INSTALL_DIR}
-                    curl -o terraform.tar.gz ${TERRAFORM_BINARY_URL}
-                    tar -xzf terraform.tar.gz -C ${TERRAFORM_INSTALL_DIR}
-                    rm terraform.tar.gz
+                    curl -o terraform.zip ${TERRAFORM_BINARY_URL}
+                    unzip terraform.zip -d ${TERRAFORM_INSTALL_DIR}
+                    rm terraform.zip
                     """
                 }
             }
