@@ -24,7 +24,25 @@ resource "random_string" "random" {
     special = false
 }
 
-# resource "azurerm_resource_group" "group" {
-#   name = random_string.random.result
-#   location = "East US"
-# }
+resource "azurerm_resource_group" "group" {
+  name = random_string.random.result
+  location = "East US"
+}
+
+resource "azurerm_service_plan" "service_plan" {
+  name = random_string.random.result
+  location = azurerm_resource_group.group.location
+  resource_group_name = azurerm_resource_group.group.name
+  os_type = "Linux"
+  sku_name = "F1"
+}
+
+resource "azurerm_linux_app_service" "app_service" {
+  name = random_string.random.result
+  location = azurerm_resource_group.group.location
+  resource_group_name = azurerm_resource_group.group.name
+  app_service_plan_id = azurerm_service_plan.service_plan.id
+  app_settings = {
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = "false"
+  }
+}
